@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Álbum Copa 2026</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff}
+header{background:#222;padding:15px;text-align:center}
+#content{padding:12px}
+.item{background:#1f1f1f;margin:8px 0;padding:12px;border-radius:10px;cursor:pointer}
+.sticker{display:inline-block;width:70px;margin:4px;padding:8px;text-align:center;border-radius:8px;background:#333;cursor:pointer}
+.checked{background:#d4af37;color:#000;font-weight:bold}
+button{padding:10px;border:none;border-radius:8px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<header><h2>🏆 Álbum Copa 2026</h2></header>
+<div id="content"></div>
+
+<script>
+const teams=["Argentina","Austrália","Brasil","Canadá","Croácia","Dinamarca","Espanha","Estados Unidos","França","Inglaterra","Itália","Japão","México","Portugal","Uruguai"];
+let current=null;
+const db=JSON.parse(localStorage.getItem("album2026")||"{}");
+
+function save(){localStorage.setItem("album2026",JSON.stringify(db));}
+
+function home(){
+ current=null;
+ let html="<h3>Seleções</h3>";
+ teams.forEach(t=>{
+   let count=0;
+   for(let i=1;i<=20;i++) if(db[t+"-"+i]) count++;
+   html += `<div class='item' onclick="team('${t}')">${t} (${count}/20)</div>`;
+ });
+ html += "<div class='item' onclick="special('FWC',20)">⭐ Especiais FWC</div>";
+ html += "<div class='item' onclick="special('CC',12)">🥤 Coca-Cola</div>";
+ document.getElementById("content").innerHTML=html;
+}
+
+function team(name){
+ let html=`<button onclick="home()">← Voltar</button><h3>${name}</h3>`;
+ for(let i=1;i<=20;i++){
+   const k=name+"-"+i;
+   html += `<div class="sticker ${db[k]?'checked':''}" onclick="toggle('${k}')">${String(i).padStart(2,'0')}</div>`;
+ }
+ document.getElementById("content").innerHTML=html;
+ current={type:'team',name};
+}
+
+function special(prefix,max){
+ let html=`<button onclick="home()">← Voltar</button><h3>${prefix}</h3>`;
+ for(let i=1;i<=max;i++){
+   const k=prefix+"-"+i;
+   html += `<div class="sticker ${db[k]?'checked':''}" onclick="toggle('${k}')">${prefix} ${i}</div>`;
+ }
+ document.getElementById("content").innerHTML=html;
+ current={type:'special',prefix,max};
+}
+
+function toggle(k){
+ if(db[k]) delete db[k]; else db[k]=1;
+ save();
+ if(current){
+   if(current.type==='team') team(current.name);
+   else special(current.prefix,current.max);
+ } else home();
+}
+
+home();
+</script>
+</body>
+</html>
